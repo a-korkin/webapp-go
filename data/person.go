@@ -1,5 +1,9 @@
 package data
 
+import (
+	"math/rand"
+)
+
 type Person struct {
 	ID    int    `json:"id"`
 	Fname string `json:"fname"`
@@ -28,4 +32,9 @@ func GetPersons() []Person {
 
 func GetPerson(id int) Person {
 	return persons[0]
+}
+
+func (p *Person) AddPerson() {
+	p.ID = rand.Intn(1000) + 1
+	persons = append(persons, *p)
 }

@@ -3,18 +3,19 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/a-korkin/webapp/data"
-	"github.com/a-korkin/webapp/utils"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/a-korkin/webapp/data"
+	"github.com/a-korkin/webapp/utils"
 )
 
 func Persons(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		log.Printf("params: %v", utils.GetQueryParams(r.URL.RawQuery))
 		if id := utils.GetResourceId(r.RequestURI); id != "" {
+			log.Printf("params: %v", utils.GetQueryParams(r.URL.RawQuery))
 			resourceId, err := strconv.Atoi(id)
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
@@ -25,6 +26,8 @@ func Persons(w http.ResponseWriter, r *http.Request) {
 		} else {
 			getPersons(w)
 		}
+	case "POST":
+		addPerson(w, r)
 	}
 }
 
@@ -42,5 +45,16 @@ func getPerson(w http.ResponseWriter, id int) {
 	if err := json.NewEncoder(w).Encode(data.GetPerson(id)); err != nil {
 		log.Fatalf("couldn't serialize person: %s", err)
 	}
+}
 
+func addPerson(w http.ResponseWriter, r *http.Request) {
+	person := data.Person{}
+	if err := json.NewDecoder(r.Body).Decode(&person); err != nil {
+		log.Fatalf("couldn't deserialize person: %s", err)
+	}
+	person.AddPerson()
+	w.WriteHeader(http.StatusCreated)
+	if err := json.NewEncoder(w).Encode(person); err != nil {
+		log.Fatalf("couldn't serialize person: %s", err)
+	}
 }
