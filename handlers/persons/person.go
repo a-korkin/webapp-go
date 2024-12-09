@@ -1,4 +1,4 @@
-package handlers
+package persons
 
 import (
 	"net/http"

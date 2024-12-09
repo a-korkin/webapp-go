@@ -1,22 +1,16 @@
 package main
 
 import (
-	"github.com/a-korkin/webapp/handlers"
+	"github.com/a-korkin/webapp/handlers/persons"
+	"github.com/a-korkin/webapp/utils"
 	"log"
 	"net/http"
-	"strings"
 )
 
-func getResourcePath(uri string) string {
-	return strings.Split(strings.ToLower(uri), "/")[1]
-}
-
 func Router(w http.ResponseWriter, r *http.Request) {
-	uri := strings.ToLower(r.RequestURI)
-	log.Printf("request uri: %v", uri)
-	log.Printf(getResourcePath(uri))
-	switch getResourcePath(uri) {
+	log.Printf("params: %v", utils.GetQueryParams(r.URL.RawQuery))
+	switch utils.GetResourcePath(r.RequestURI) {
 	case "person":
-		handlers.GetAll(w, r)
+		persons.GetAll(w, r)
 	}
 }
