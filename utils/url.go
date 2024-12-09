@@ -2,8 +2,24 @@ package utils
 
 import "strings"
 
+func splitUri(uri string) []string {
+	return strings.Split(strings.ToLower(uri), "/")
+}
+
 func GetResourcePath(uri string) string {
-	return strings.Split(strings.ToLower(uri), "/")[1]
+	tokens := splitUri(uri)
+	if len(tokens) > 1 {
+		return tokens[1]
+	}
+	return ""
+}
+
+func GetResourceId(uri string) string {
+	tokens := splitUri(uri)
+	if len(tokens) > 2 {
+		return tokens[2]
+	}
+	return ""
 }
 
 func GetQueryParams(queryStr string) map[string]string {
