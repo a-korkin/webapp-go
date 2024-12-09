@@ -3,7 +3,8 @@ services:
     image: postgres
     container_name: postgres
     environment:
-      POSTGRES_PASSWORD: ${DB_PWD}
+      POSTGRES_PASSWORD: ${DB_ADM_PWD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     healthcheck:
