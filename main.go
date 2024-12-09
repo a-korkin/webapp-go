@@ -11,6 +11,6 @@ func main() {
 	}
 	http.HandleFunc("/", Router)
 	if err := server.ListenAndServe(); err != nil {
-		log.Fatalf("couldn't start server")
+		log.Fatalf("failed start server: %s", err)
 	}
 }

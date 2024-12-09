@@ -19,7 +19,7 @@ func Persons(w http.ResponseWriter, r *http.Request) {
 			resourceId, err := strconv.Atoi(id)
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte(fmt.Sprintf("couldn't convert id: '%s' to int", id)))
+				w.Write([]byte(fmt.Sprintf("failed convert id: '%s' to int", id)))
 				return
 			}
 			getPerson(w, resourceId)
@@ -35,7 +35,7 @@ func getPersons(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(data.GetPersons()); err != nil {
-		log.Fatalf("couldn't serialize persons: %s", err)
+		log.Fatalf("failed serialize persons: %s", err)
 	}
 }
 
@@ -43,18 +43,18 @@ func getPerson(w http.ResponseWriter, id int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(data.GetPerson(id)); err != nil {
-		log.Fatalf("couldn't serialize person: %s", err)
+		log.Fatalf("failed serialize person: %s", err)
 	}
 }
 
 func addPerson(w http.ResponseWriter, r *http.Request) {
 	person := data.Person{}
 	if err := json.NewDecoder(r.Body).Decode(&person); err != nil {
-		log.Fatalf("couldn't deserialize person: %s", err)
+		log.Fatalf("failed deserialize person: %s", err)
 	}
 	person.AddPerson()
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(person); err != nil {
-		log.Fatalf("couldn't serialize person: %s", err)
+		log.Fatalf("failed serialize person: %s", err)
 	}
 }
