@@ -29,6 +29,17 @@ func Persons(w http.ResponseWriter, r *http.Request, appState *data.AppState) {
 		}
 	case "POST":
 		addPerson(w, r, appState)
+	case "DELETE":
+		if id := utils.GetResourceId(r.RequestURI); id != "" {
+			resourceId, err := strconv.Atoi(id)
+			if err != nil {
+				http.Error(w,
+					fmt.Sprintf("failed convert id: %s to int", id),
+					http.StatusBadRequest)
+				return
+			}
+			deletePerson(w, resourceId, appState)
+		}
 	}
 }
 
@@ -43,7 +54,11 @@ func getPersons(w http.ResponseWriter, appState *data.AppState) {
 func getPerson(w http.ResponseWriter, id int, appState *data.AppState) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(data.GetPerson(id, appState)); err != nil {
+	pers, err := data.GetPerson(id, appState)
+	if err != nil {
+		log.Fatalf("failed to get person: %s", err)
+	}
+	if err := json.NewEncoder(w).Encode(pers); err != nil {
 		log.Fatalf("failed serialize person: %s", err)
 	}
 }
@@ -58,4 +73,10 @@ func addPerson(w http.ResponseWriter, r *http.Request, appState *data.AppState) 
 	if err := json.NewEncoder(w).Encode(person); err != nil {
 		log.Fatalf("failed serialize person: %s", err)
 	}
+}
+
+func deletePerson(
+	w http.ResponseWriter, id int, appState *data.AppState) {
+	data.DeletePerson(id, appState)
+	w.WriteHeader(http.StatusNoContent)
 }

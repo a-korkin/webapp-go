@@ -34,13 +34,14 @@ from public.person`)
 	return persons
 }
 
-func GetPerson(id int, appState *AppState) Person {
+func GetPerson(id int, appState *AppState) (*Person, error) {
 	row, err := appState.Db.Query(`
 select id, lname, fname, age 
 from public.person 
 where id = $1`, id)
 	if err != nil {
 		log.Fatalf("failed to get person: %s", err)
+		return nil, err
 	}
 	pers := Person{}
 	if row.Next() {
@@ -48,7 +49,7 @@ where id = $1`, id)
 			log.Fatalf("failed to prepare person: %s", err)
 		}
 	}
-	return pers
+	return &pers, nil
 }
 
 func (p *Person) AddPerson(appState *AppState) {
@@ -63,5 +64,13 @@ returning id`, p.Lname, p.Fname, p.Age)
 	}
 	if err != nil {
 		log.Fatalf("failed to create person: %s", err)
+	}
+}
+
+func DeletePerson(id int, appState *AppState) {
+	_, err := appState.Db.Exec(`
+delete from public.person where id = $1`, id)
+	if err != nil {
+		log.Fatalf("failed to delete person: %s", err)
 	}
 }
