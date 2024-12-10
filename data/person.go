@@ -67,6 +67,19 @@ returning id`, p.Lname, p.Fname, p.Age)
 	}
 }
 
+func (p *Person) UpdatePerson(id int, appState *AppState) {
+	_, err := appState.Db.Exec(`
+update public.person
+set lname = $2,
+	fname = $3, 
+	age = $4
+where id = $1`, id, p.Lname, p.Fname, p.Age)
+	if err != nil {
+		log.Fatalf("failed to update person: %s", err)
+	}
+	p.ID = id
+}
+
 func DeletePerson(id int, appState *AppState) {
 	_, err := appState.Db.Exec(`
 delete from public.person where id = $1`, id)
