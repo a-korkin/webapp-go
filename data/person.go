@@ -27,6 +27,23 @@ var persons []Person = []Person{
 }
 
 func GetPersons() []Person {
+	// if db.Db == nil {
+	// 	log.Fatalf("db not initialized")
+	// }
+	// rows, err := db.Db.Query("select id, lname, fname, age from public.person")
+	// if err != nil {
+	// 	log.Fatalf("failed to get persons: %s", err)
+	// }
+	//
+	// persons := []Person{}
+	// for rows.Next() {
+	// 	pers := Person{}
+	// 	err := rows.Scan(&pers.ID, &pers.Lname, &pers.Fname, &pers.Age)
+	// 	if err != nil {
+	// 		log.Fatalf("failed to get person: %s", err)
+	// 	}
+	// 	persons = append(persons, pers)
+	// }
 	return persons
 }
 

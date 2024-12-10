@@ -6,7 +6,11 @@ import (
 	"net/http"
 )
 
-func Router(w http.ResponseWriter, r *http.Request) {
+type Router struct {
+	State AppState
+}
+
+func (router Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch utils.GetResourcePath(r.RequestURI) {
 	case "person":
 		handlers.Persons(w, r)

@@ -18,8 +18,9 @@ func Persons(w http.ResponseWriter, r *http.Request) {
 			log.Printf("params: %v", utils.GetQueryParams(r.URL.RawQuery))
 			resourceId, err := strconv.Atoi(id)
 			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte(fmt.Sprintf("failed convert id: '%s' to int", id)))
+				http.Error(w,
+					fmt.Sprintf("failed convert id: '%s' to int", id),
+					http.StatusBadRequest)
 				return
 			}
 			getPerson(w, resourceId)
