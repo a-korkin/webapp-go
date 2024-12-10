@@ -11,45 +11,70 @@ import (
 	"github.com/a-korkin/webapp/utils"
 )
 
+func getId(uri string) (int, error) {
+	if id := utils.GetResourceId(uri); id != "" {
+		resourceId, err := strconv.Atoi(id)
+		if err != nil {
+			return 0, fmt.Errorf("failed convert id: '%s' to int", id)
+		}
+		return resourceId, nil
+	}
+	return 0, nil
+}
+
 func Persons(w http.ResponseWriter, r *http.Request, appState *data.AppState) {
 	switch r.Method {
 	case "GET":
-		if id := utils.GetResourceId(r.RequestURI); id != "" {
-			log.Printf("params: %v", utils.GetQueryParams(r.URL.RawQuery))
-			resourceId, err := strconv.Atoi(id)
-			if err != nil {
-				http.Error(w,
-					fmt.Sprintf("failed convert id: '%s' to int", id),
-					http.StatusBadRequest)
-				return
-			}
-			getPerson(w, resourceId, appState)
+		id, err := getId(r.RequestURI)
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusBadRequest)
+			return
+		}
+		if id != 0 {
+			getPerson(w, id, appState)
 		} else {
 			getPersons(w, appState)
 		}
 	case "POST":
 		addPerson(w, r, appState)
 	case "PUT":
-		if id := utils.GetResourceId(r.RequestURI); id != "" {
-			resourceId, err := strconv.Atoi(id)
-			if err != nil {
-				http.Error(w,
-					fmt.Sprintf("failed convert id: %s to int", id),
-					http.StatusBadRequest)
-				return
-			}
-			updatePerson(w, r, resourceId, appState)
+		id, err := getId(r.RequestURI)
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusBadRequest)
+			return
+		}
+		if id != 0 {
+			updatePerson(w, r, id, appState)
+		} else {
+			http.Error(
+				w,
+				"resource id must be set",
+				http.StatusBadRequest)
+			return
 		}
 	case "DELETE":
-		if id := utils.GetResourceId(r.RequestURI); id != "" {
-			resourceId, err := strconv.Atoi(id)
-			if err != nil {
-				http.Error(w,
-					fmt.Sprintf("failed convert id: %s to int", id),
-					http.StatusBadRequest)
-				return
-			}
-			deletePerson(w, resourceId, appState)
+		id, err := getId(r.RequestURI)
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusBadRequest)
+			return
+		}
+		if id != 0 {
+			deletePerson(w, id, appState)
+		} else {
+			http.Error(
+				w,
+				"resource id must be set",
+				http.StatusBadRequest)
+			return
 		}
 	}
 }
