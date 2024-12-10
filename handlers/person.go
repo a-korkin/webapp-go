@@ -11,7 +11,7 @@ import (
 	"github.com/a-korkin/webapp/utils"
 )
 
-func Persons(w http.ResponseWriter, r *http.Request) {
+func Persons(w http.ResponseWriter, r *http.Request, appState *data.AppState) {
 	switch r.Method {
 	case "GET":
 		if id := utils.GetResourceId(r.RequestURI); id != "" {
@@ -23,37 +23,37 @@ func Persons(w http.ResponseWriter, r *http.Request) {
 					http.StatusBadRequest)
 				return
 			}
-			getPerson(w, resourceId)
+			getPerson(w, resourceId, appState)
 		} else {
-			getPersons(w)
+			getPersons(w, appState)
 		}
 	case "POST":
-		addPerson(w, r)
+		addPerson(w, r, appState)
 	}
 }
 
-func getPersons(w http.ResponseWriter) {
+func getPersons(w http.ResponseWriter, appState *data.AppState) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(data.GetPersons()); err != nil {
+	if err := json.NewEncoder(w).Encode(data.GetPersons(appState)); err != nil {
 		log.Fatalf("failed serialize persons: %s", err)
 	}
 }
 
-func getPerson(w http.ResponseWriter, id int) {
+func getPerson(w http.ResponseWriter, id int, appState *data.AppState) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(data.GetPerson(id)); err != nil {
+	if err := json.NewEncoder(w).Encode(data.GetPerson(id, appState)); err != nil {
 		log.Fatalf("failed serialize person: %s", err)
 	}
 }
 
-func addPerson(w http.ResponseWriter, r *http.Request) {
+func addPerson(w http.ResponseWriter, r *http.Request, appState *data.AppState) {
 	person := data.Person{}
 	if err := json.NewDecoder(r.Body).Decode(&person); err != nil {
 		log.Fatalf("failed deserialize person: %s", err)
 	}
-	person.AddPerson()
+	person.AddPerson(appState)
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(person); err != nil {
 		log.Fatalf("failed serialize person: %s", err)

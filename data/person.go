@@ -1,7 +1,7 @@
 package data
 
 import (
-	"math/rand"
+	"log"
 )
 
 type Person struct {
@@ -11,47 +11,57 @@ type Person struct {
 	Age   uint8  `json:"age"`
 }
 
-var persons []Person = []Person{
-	{
-		ID:    1,
-		Fname: "Travis",
-		Lname: "Bickle",
-		Age:   33,
-	},
-	{
-		ID:    2,
-		Fname: "Alice",
-		Lname: "Cooper",
-		Age:   75,
-	},
-}
+func GetPersons(appState *AppState) []Person {
+	if appState.Db == nil {
+		log.Fatalf("db not initialized")
+	}
+	rows, err := appState.Db.Query(`
+select id, lname, fname, age 
+from public.person`)
+	if err != nil {
+		log.Fatalf("failed to get persons: %s", err)
+	}
 
-func GetPersons() []Person {
-	// if db.Db == nil {
-	// 	log.Fatalf("db not initialized")
-	// }
-	// rows, err := db.Db.Query("select id, lname, fname, age from public.person")
-	// if err != nil {
-	// 	log.Fatalf("failed to get persons: %s", err)
-	// }
-	//
-	// persons := []Person{}
-	// for rows.Next() {
-	// 	pers := Person{}
-	// 	err := rows.Scan(&pers.ID, &pers.Lname, &pers.Fname, &pers.Age)
-	// 	if err != nil {
-	// 		log.Fatalf("failed to get person: %s", err)
-	// 	}
-	// 	persons = append(persons, pers)
-	// }
+	persons := []Person{}
+	for rows.Next() {
+		pers := Person{}
+		err := rows.Scan(&pers.ID, &pers.Lname, &pers.Fname, &pers.Age)
+		if err != nil {
+			log.Fatalf("failed to prepare person: %s", err)
+		}
+		persons = append(persons, pers)
+	}
 	return persons
 }
 
-func GetPerson(id int) Person {
-	return persons[0]
+func GetPerson(id int, appState *AppState) Person {
+	row, err := appState.Db.Query(`
+select id, lname, fname, age 
+from public.person 
+where id = $1`, id)
+	if err != nil {
+		log.Fatalf("failed to get person: %s", err)
+	}
+	pers := Person{}
+	if row.Next() {
+		if err = row.Scan(&pers.ID, &pers.Lname, &pers.Fname, &pers.Age); err != nil {
+			log.Fatalf("failed to prepare person: %s", err)
+		}
+	}
+	return pers
 }
 
-func (p *Person) AddPerson() {
-	p.ID = rand.Intn(1000) + 1
-	persons = append(persons, *p)
+func (p *Person) AddPerson(appState *AppState) {
+	res, err := appState.Db.Query(`
+insert into public.person(lname, fname, age)
+values($1, $2, $3)
+returning id`, p.Lname, p.Fname, p.Age)
+	if res.Next() {
+		if err = res.Scan(&p.ID); err != nil {
+			log.Fatalf("failed to get id: %s", err)
+		}
+	}
+	if err != nil {
+		log.Fatalf("failed to create person: %s", err)
+	}
 }

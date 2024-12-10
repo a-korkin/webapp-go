@@ -3,40 +3,34 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/a-korkin/webapp/data"
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 )
 
-type AppState struct {
-	Db *sql.DB
-}
+var AppState = data.AppState{}
 
-var appState = AppState{}
-
-func init() {
+func main() {
 	var err error
 	connStr := fmt.Sprintf(
 		"user=%s password=%s dbname=%s sslmode=disable",
 		GetEnv("DB_USR"), GetEnv("DB_PWD"), GetEnv("DB_NAME"))
-	appState.Db, err = sql.Open("postgres", connStr)
+	AppState.Db, err = sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatalf("failed to connect to postgres: %s", err)
 	}
 	defer func() {
-		if err = appState.Db.Close(); err != nil {
+		log.Printf("db connection close")
+		if err := AppState.Db.Close(); err != nil {
 			log.Fatalf("failed to close connection to postgres: %s", err)
 		}
 	}()
-}
 
-func main() {
 	server := http.Server{
 		Addr: ":8080",
 	}
-	router := Router{
-		State: appState,
-	}
+	router := Router{}
 	http.Handle("/", router)
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("failed start server: %s", err)
