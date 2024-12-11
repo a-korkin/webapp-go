@@ -48,8 +48,9 @@ where id = $1`, id)
 		if err = row.Scan(&pers.ID, &pers.Lname, &pers.Fname, &pers.Age); err != nil {
 			log.Fatalf("failed to prepare person: %s", err)
 		}
+		return &pers, nil
 	}
-	return &pers, nil
+	return nil, nil
 }
 
 func (p *Person) AddPerson(appState *AppState) {

@@ -89,11 +89,15 @@ func getPersons(w http.ResponseWriter, appState *data.AppState) {
 
 func getPerson(w http.ResponseWriter, id int, appState *data.AppState) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 	pers, err := data.GetPerson(id, appState)
 	if err != nil {
 		log.Fatalf("failed to get person: %s", err)
 	}
+	if pers == nil {
+		http.Error(w, "person not found", http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(pers); err != nil {
 		log.Fatalf("failed serialize person: %s", err)
 	}
