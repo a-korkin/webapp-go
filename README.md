@@ -30,7 +30,16 @@ Content-Type: application/json
 {
     "lname": "Travis",
     "fname": "Bickle",
-    "age": 23,
+    "age": 23
+}
+
+PUT localhost:8080/person/1
+Content-Type: application/json
+
+{
+    "lname": "Alice",
+    "fname": "Cooper",
+    "age": 57
 }
 
 DELETE localhost:8080/person/1
